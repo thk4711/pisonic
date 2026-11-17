@@ -6,7 +6,7 @@
 pytest
 pytest-cov
 ruff==0.17.5
-mypy==2.3.1
+mypy==2.4.1
 types-requests
 types-PyYAML
 pydantic

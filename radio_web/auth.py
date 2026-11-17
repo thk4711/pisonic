@@ -68,7 +68,7 @@ def verify_password(password: str, stored: str) -> bool:
         iterations = int(iter_text)
         salt = bytes.fromhex(salt_hex)
         expected = bytes.fromhex(hash_hex)
-    except (ValueError, AttributeError):
+    except ValueError, AttributeError:
         return False
     derived = hashlib.pbkdf2_hmac(_PBKDF2_ALGORITHM, password.encode("utf-8"), salt, iterations)
     return hmac.compare_digest(derived, expected)

@@ -37,7 +37,7 @@ def _read() -> Optional[Dict[str, Any]]:
         if TRACKING_PATH.stat().st_size > MAX_TRACKING_BYTES:
             return None
         value = json.loads(TRACKING_PATH.read_text(encoding="utf-8"))
-    except (OSError, ValueError, TypeError):
+    except OSError, ValueError, TypeError:
         return None
     return value if isinstance(value, dict) else None
 

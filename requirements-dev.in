@@ -1,0 +1,20 @@
+# Python 3.14 host checks. Share target runtime pins without installing Pi drivers.
+# Regenerate requirements-dev.txt with:
+# python -m piptools compile --generate-hashes --allow-unsafe --strip-extras requirements-dev.in
+-c requirements-runtime.txt
+
+pytest
+pytest-cov
+ruff==0.17.5
+mypy==2.3.1
+types-requests
+types-PyYAML
+pydantic
+requests
+numpy
+Pillow
+PyYAML
+# Development-only rasterizer; never installed in the appliance.
+cairosvg
+pip-audit==2.10.1
+pip-tools==7.7.0

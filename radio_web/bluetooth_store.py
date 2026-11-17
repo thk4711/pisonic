@@ -30,7 +30,7 @@ def _run(cmd: List[str]) -> Optional[str]:
         result = subprocess.run(  # noqa: S603 - fixed argv, shell=False
             cmd, capture_output=True, text=True, timeout=_COMMAND_TIMEOUT
         )
-    except (OSError, subprocess.SubprocessError):
+    except OSError, subprocess.SubprocessError:
         return None
     if result.returncode != 0:
         return None

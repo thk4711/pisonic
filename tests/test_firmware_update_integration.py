@@ -111,8 +111,7 @@ def image_layout(monkeypatch, tmp_path):
     cmdline.write_text("root=/dev/mmcblk0p2 radio.slot=A\n", encoding="utf-8")
     mounts = tmp_path / "mounts"
     mounts.write_text(
-        f"/dev/mmcblk0p4 {data} ext4 rw,relatime 0 0\n"
-        "/dev/mmcblk0p4 /data ext4 rw,relatime 0 0\n",
+        f"/dev/mmcblk0p4 {data} ext4 rw,relatime 0 0\n/dev/mmcblk0p4 /data ext4 rw,relatime 0 0\n",
         encoding="utf-8",
     )
     monkeypatch.setattr(installer, "CMDLINE_PATH", cmdline)

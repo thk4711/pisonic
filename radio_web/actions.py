@@ -83,7 +83,7 @@ def _exchange(request: bytes, *, timeout: float = _CONNECT_TIMEOUT_SECONDS) -> T
     raw = _exchange_raw(request, timeout=timeout)
     try:
         return helper_protocol.decode_response(raw)
-    except (ValueError, UnicodeDecodeError):
+    except ValueError, UnicodeDecodeError:
         return False, "The privileged helper returned a malformed response."
 
 

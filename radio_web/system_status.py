@@ -73,7 +73,7 @@ def _run(cmd: List[str]) -> Optional[str]:
     """Run a read-only command (``shell=False``); return stdout or ``None``."""
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=_COMMAND_TIMEOUT)
-    except (OSError, subprocess.SubprocessError):
+    except OSError, subprocess.SubprocessError:
         return None
     if result.returncode != 0:
         return None
@@ -117,7 +117,7 @@ def uptime_seconds() -> Optional[float]:
         return None
     try:
         return float(text.split()[0])
-    except (ValueError, IndexError):
+    except ValueError, IndexError:
         return None
 
 
@@ -242,7 +242,7 @@ def player_status(now: Optional[float] = None) -> Dict[str, Any]:
         return result
     try:
         data = json.loads(text)
-    except (ValueError, TypeError):
+    except ValueError, TypeError:
         return result
     if not isinstance(data, dict):
         return result

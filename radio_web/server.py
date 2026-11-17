@@ -172,7 +172,7 @@ class Handler(BaseHTTPRequestHandler):
         """Silently discard clients that reset an idle HTTP/WebSocket connection."""
         try:
             super().handle()
-        except (BrokenPipeError, ConnectionResetError):
+        except BrokenPipeError, ConnectionResetError:
             logger.debug("Client reset connection")
 
     def log_message(self, format: str, *args) -> None:  # noqa: A002
@@ -238,7 +238,7 @@ class Handler(BaseHTTPRequestHandler):
         """
         try:
             length = int(self.headers.get("Content-Length", "0"))
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             length = 0
         if length <= 0:
             return b""
@@ -402,7 +402,7 @@ class Handler(BaseHTTPRequestHandler):
                 return
             status, content_type, resp_body, extra_headers = routes.resolve(req)
             self._send(status, content_type, resp_body, extra_headers)
-        except (BrokenPipeError, ConnectionResetError):
+        except BrokenPipeError, ConnectionResetError:
             # The client went away while a response was being generated/sent.
             logger.debug("Client disconnected during %s %s", method, self.path)
         except Exception:
@@ -421,7 +421,7 @@ class Handler(BaseHTTPRequestHandler):
                         "internal server error",
                         [("Connection", "close")],
                     )
-            except (BrokenPipeError, ConnectionResetError, OSError):
+            except BrokenPipeError, ConnectionResetError, OSError:
                 pass
 
     def _handle_adc_websocket(self, req: routes.Request) -> None:
@@ -468,7 +468,7 @@ class Handler(BaseHTTPRequestHandler):
                 payload = json.dumps(adc_store.live_snapshot(), separators=(",", ":"))
                 self.connection.sendall(_websocket_text_frame(payload))
                 time.sleep(0.2)
-        except (BrokenPipeError, ConnectionResetError, OSError, socket.timeout):
+        except BrokenPipeError, ConnectionResetError, OSError, socket.timeout:
             logger.debug("ADC WebSocket client disconnected")
 
     def do_GET(self) -> None:  # noqa: N802

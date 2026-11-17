@@ -164,7 +164,7 @@ def _now_playing_card(player: Dict[str, Any]) -> str:
         '<div class="card now-playing"><div class="now-playing-content">'
         '<div class="now-playing-media">'
         f'<div class="artwork" data-player-artwork{image_hidden}>'
-        f'<img data-player-artwork-image{image_source} '
+        f"<img data-player-artwork-image{image_source} "
         f'alt="Artwork for {_esc(metadata.get("name") or "now playing")}" '
         'width="176" height="176"></div>'
         f'<div class="artwork artwork-fallback" data-player-artwork-fallback '
@@ -175,14 +175,14 @@ def _now_playing_card(player: Dict[str, Any]) -> str:
         f'<span class="badge off" data-player-stale{stale_hidden}>stale</span></h2>'
         f'<p class="warn" data-player-unavailable{unavailable_hidden}>'
         "Player status unavailable — the radio process may be starting or stopped.</p>"
-        f'<dl data-player-details{details_hidden}>'
+        f"<dl data-player-details{details_hidden}>"
         f"<dt>Power</dt><dd>{power_badge}</dd>"
         f"<dt>Playback</dt><dd>{playback_badge}</dd>"
-        f'<dt>Active source</dt><dd data-player-source>{_esc(active_source)}</dd>'
-        f'<dt>Station / Artist</dt><dd data-player-name>{_esc(metadata.get("name"))}</dd>'
-        f'<dt>Track</dt><dd data-player-title>{_esc(metadata.get("title"))}</dd>'
-        f'<dt data-player-album-label{album_hidden}>Album</dt>'
-        f'<dd data-player-album{album_hidden}>{_esc(album)}</dd>'
+        f"<dt>Active source</dt><dd data-player-source>{_esc(active_source)}</dd>"
+        f"<dt>Station / Artist</dt><dd data-player-name>{_esc(metadata.get('name'))}</dd>"
+        f"<dt>Track</dt><dd data-player-title>{_esc(metadata.get('title'))}</dd>"
+        f"<dt data-player-album-label{album_hidden}>Album</dt>"
+        f"<dd data-player-album{album_hidden}>{_esc(album)}</dd>"
         "</dl></div></div></div>"
     )
 

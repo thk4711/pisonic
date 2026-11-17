@@ -305,7 +305,7 @@ class TestDispatch:
         )
         restarts = []
         monkeypatch.setattr(
-            helper, "_run_argv", lambda argv, ok, fail: (restarts.append(argv) or (True, ok))
+            helper, "_run_argv", lambda argv, ok, fail: restarts.append(argv) or (True, ok)
         )
         ok, message = helper.dispatch("apply_equalizer", {})
         assert ok
@@ -354,7 +354,7 @@ class TestDispatch:
     def test_set_wifi_forwards_normalised_config(self, monkeypatch):
         seen = {}
         monkeypatch.setattr(
-            helper.network_apply, "apply_wifi", lambda config: (seen.update(config) or (True, "ok"))
+            helper.network_apply, "apply_wifi", lambda config: seen.update(config) or (True, "ok")
         )
         ok, _msg = helper.dispatch("set_wifi", {"ssid": "Net", "psk": "12345678", "country": "DE"})
         assert ok

@@ -120,13 +120,15 @@ def test_control_routes_are_passwordless_and_dispatch_fixed_actions(monkeypatch,
     monkeypatch.setattr(
         route_player,
         "_exchange",
-        lambda selected: seen.append(selected)
-        or {
-            "ok": True,
-            "code": "accepted",
-            "message": "internal message is not exposed",
-            "source": "mpd",
-        },
+        lambda selected: (
+            seen.append(selected)
+            or {
+                "ok": True,
+                "code": "accepted",
+                "message": "internal message is not exposed",
+                "source": "mpd",
+            }
+        ),
     )
 
     status, payload = _payload(

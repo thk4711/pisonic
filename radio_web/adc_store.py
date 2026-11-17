@@ -137,5 +137,5 @@ def live_snapshot() -> Dict[str, Any]:
         data["available"] = True
         data["stale"] = updated <= 0 or time.time() - updated > ADC_STATUS_STALE_SECONDS
         return data
-    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+    except OSError, ValueError, TypeError, json.JSONDecodeError:
         return {"available": False, "stale": True, "channels": {}}

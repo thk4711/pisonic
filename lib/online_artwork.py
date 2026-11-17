@@ -206,7 +206,7 @@ def _parse_mbid(value: Any) -> Optional[str]:
         return None
     try:
         return str(uuid.UUID(value))
-    except (ValueError, AttributeError):
+    except ValueError, AttributeError:
         return None
 
 
@@ -467,7 +467,7 @@ class MusicBrainzClient:
         if content_length is not None:
             try:
                 declared_length = int(content_length)
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 return None
             if declared_length < 0 or declared_length > MUSICBRAINZ_MAX_RESPONSE_BYTES:
                 return None
@@ -485,7 +485,7 @@ class MusicBrainzClient:
     def _decode_result(payload: bytes, status_code: int) -> MusicBrainzSearchResult:
         try:
             document = json.loads(payload.decode("utf-8"))
-        except (UnicodeDecodeError, json.JSONDecodeError):
+        except UnicodeDecodeError, json.JSONDecodeError:
             return MusicBrainzSearchResult(
                 failure=MusicBrainzFailure.INVALID_RESPONSE,
                 status_code=status_code,
@@ -557,13 +557,13 @@ def _retry_after_seconds(value: Optional[str]) -> Optional[float]:
         return None
     try:
         seconds = float(value.strip())
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         try:
             retry_at = parsedate_to_datetime(value)
             if retry_at.tzinfo is None:
                 retry_at = retry_at.replace(tzinfo=timezone.utc)
             seconds = retry_at.timestamp() - time.time()
-        except (TypeError, ValueError, OverflowError):
+        except TypeError, ValueError, OverflowError:
             return None
     if seconds < 0:
         seconds = 0
@@ -749,7 +749,7 @@ class CoverArtArchiveClient:
 
         try:
             addresses = self._address_resolver(hostname)
-        except (OSError, ValueError):
+        except OSError, ValueError:
             return False
         if not addresses:
             return False
@@ -792,7 +792,7 @@ class CoverArtArchiveClient:
         if content_length is not None:
             try:
                 declared_length = int(content_length)
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 return CoverArtFailure.RESPONSE_TOO_LARGE, b""
             if declared_length < 0 or declared_length > COVER_ART_MAX_RESPONSE_BYTES:
                 return CoverArtFailure.RESPONSE_TOO_LARGE, b""
@@ -814,7 +814,7 @@ class CoverArtArchiveClient:
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("error", Image.DecompressionBombWarning)
-                with Image.open(io.BytesIO(data)) as source:
+                with Image.open(io.BytesIO(data), formats=("PNG", "JPEG")) as source:
                     width, height = source.size
                     if (
                         width <= 0
@@ -833,9 +833,9 @@ class CoverArtArchiveClient:
             output = io.BytesIO()
             image.save(output, format="JPEG", quality=88, optimize=True)
             return output.getvalue()
-        except (Image.DecompressionBombError, Image.DecompressionBombWarning):
+        except Image.DecompressionBombError, Image.DecompressionBombWarning:
             return None
-        except (OSError, UnidentifiedImageError, ValueError):
+        except OSError, UnidentifiedImageError, ValueError:
             return None
 
     @staticmethod
@@ -1235,7 +1235,7 @@ class OnlineArtworkResolver:
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("error", Image.DecompressionBombWarning)
-                with Image.open(io.BytesIO(data)) as image:
+                with Image.open(io.BytesIO(data), formats=("JPEG",)) as image:
                     if (
                         image.format != "JPEG"
                         or image.mode != "RGB"

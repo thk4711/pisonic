@@ -15,21 +15,36 @@ libraries are stubbed, so the whole developer workflow runs on your workstation
 
 ## Local setup
 
-The tests and tooling depend only on pure-Python packages, listed in
+The application and its host tests use **Python 3.14**, matching the appliance.
+Older Python versions are not supported. Dependencies are locked with hashes in
 [`../requirements-dev.txt`](../requirements-dev.txt). Work inside a virtualenv:
 
 ```bash
 cd pisonic
-python3 -m venv .venv
+python3.14 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements-dev.txt
+pip install --require-hashes -r requirements-dev.txt
 ```
 
-`requirements-dev.txt` installs the test/lint/type tooling (`pytest`,
-`pytest-cov`, `ruff`, `mypy`) plus only the pure-Python runtime packages the
-tested modules import directly (`pydantic`, `requests`, `numpy`, `Pillow`). It
-deliberately does **not** pull in the Pi-only runtime pins from
-[`../requirements.txt`](../requirements.txt).
+`requirements-dev.in` selects host test/lint/type/security tooling plus the
+runtime packages tested on the host. Its compiled lock shares constraints with
+`requirements-runtime.txt`, compiled from `requirements.txt`, so tests exercise
+the selected application versions without installing Pi-only drivers.
+
+After reviewing an update, regenerate and audit both locks on Python 3.14:
+
+```bash
+python -m piptools compile --upgrade --generate-hashes --allow-unsafe \
+  --strip-extras --output-file=requirements-runtime.txt requirements.txt
+python -m piptools compile --upgrade --generate-hashes --allow-unsafe \
+  --strip-extras requirements-dev.in
+python -m pip_audit --strict --disable-pip --no-deps -r requirements-runtime.txt
+python -m pip_audit --strict --disable-pip --no-deps -r requirements-dev.txt
+```
+
+Buildroot recipes and `buildroot/external/board/radio/python-security.mk` define
+the actual firmware versions. Update and validate them too; regenerating a host
+lock does not update an appliance. See [dependency security](dependency-security.md).
 
 The hardware/system-only libraries — `RPi.GPIO`, `alsaaudio`, `dbus`, `spidev`,
 `gpiozero`, `smbus2`, and the vendored ADS1115 driver — are stubbed in
@@ -96,24 +111,23 @@ pip install pre-commit
 pre-commit install
 ```
 
-- **ruff** targets Python 3.9 (`target-version = "py39"` in `pyproject.toml`),
-  the oldest supported interpreter, so lint/format never suggest syntax the
-  appliance image or the CI floor cannot run.
+- **ruff** targets Python 3.14 (`target-version = "py314"` in `pyproject.toml`),
+  matching the appliance. Its version is aligned with pre-commit.
 - **mypy** gates all first-party production Python in `radio.py`, `lib/`,
   `radio_web/`, and `scripts/`. It also checks bodies of legacy functions that
   do not yet have complete signatures. Hardware/system imports without host
-  stubs are treated as external. The checker target is 3.10 while the runtime
-  floor stays 3.9.
+  stubs are treated as external. The checker also targets Python 3.14.
 
 ## Continuous integration
 
 Every push and pull request runs [`../.github/workflows/ci.yml`](../.github/workflows/ci.yml)
-across a Python version matrix (3.9, 3.11, 3.13). The same checks you can run
-locally are enforced, plus repository-wide shell and hygiene checks:
+on Python 3.14. A weekly scheduled run also checks newly disclosed vulnerabilities
+without waiting for a code change. The same local checks are enforced, plus
+dependency audits and repository-wide shell/hygiene checks:
 
 ```mermaid
 flowchart LR
-    A["Checkout + setup-python<br/>(3.9 · 3.11 · 3.13)"] --> B["pip install<br/>requirements-dev.txt"]
+    A["Checkout + setup-python<br/>(3.14)"] --> B["Hashed install + dependency audits<br/>requirements-dev.txt · requirements-runtime.txt"]
     B --> C["ruff check .<br/>ruff format --check ."]
     C --> D["mypy"]
     D --> E["pytest -q<br/>raw coverage + first-party floor 80%"]

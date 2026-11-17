@@ -4,6 +4,7 @@ import hashlib
 import os
 import re
 import tempfile
+import warnings
 from io import BytesIO
 from typing import List, Optional
 
@@ -36,10 +37,19 @@ def managed_logo_dir() -> str:
 
 def _valid_image(path: str) -> bool:
     try:
-        with Image.open(path) as image:
-            image.verify()
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            with Image.open(path, formats=("PNG", "JPEG")) as image:
+                if image.width * image.height > MAX_IMAGE_PIXELS:
+                    return False
+                image.verify()
         return True
-    except (OSError, UnidentifiedImageError):
+    except (
+        OSError,
+        UnidentifiedImageError,
+        Image.DecompressionBombError,
+        Image.DecompressionBombWarning,
+    ):
         return False
 
 
@@ -115,17 +125,22 @@ def save_upload(data: bytes, original_name: str = "") -> str:
     if len(data) > MAX_UPLOAD_BYTES:
         raise ValueError("Logo image must be at most 4 MiB.")
     try:
-        with Image.open(BytesIO(data)) as source:
-            if source.format not in ("PNG", "JPEG"):
-                raise ValueError("Logo must be a PNG or JPEG image.")
-            width, height = source.size
-            if width < 1 or height < 1 or width * height > MAX_IMAGE_PIXELS:
-                raise ValueError("Logo image dimensions are too large.")
-            image = source.convert("RGBA")
-            image.thumbnail((MAX_DIMENSION, MAX_DIMENSION), Image.Resampling.LANCZOS)
-            output = BytesIO()
-            image.save(output, format="PNG", optimize=True)
-    except (OSError, UnidentifiedImageError) as exc:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", Image.DecompressionBombWarning)
+            with Image.open(BytesIO(data), formats=("PNG", "JPEG")) as source:
+                width, height = source.size
+                if width < 1 or height < 1 or width * height > MAX_IMAGE_PIXELS:
+                    raise ValueError("Logo image dimensions are too large.")
+                image = source.convert("RGBA")
+                image.thumbnail((MAX_DIMENSION, MAX_DIMENSION), Image.Resampling.LANCZOS)
+                output = BytesIO()
+                image.save(output, format="PNG", optimize=True)
+    except (
+        OSError,
+        UnidentifiedImageError,
+        Image.DecompressionBombError,
+        Image.DecompressionBombWarning,
+    ) as exc:
         raise ValueError("Logo is not a valid PNG or JPEG image.") from exc
     normalized = output.getvalue()
     # Hash the *normalized* PNG (what we actually store) so an idempotent

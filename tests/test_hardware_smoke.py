@@ -45,9 +45,9 @@ def test_i2c_bus_shows_ads1115_at_0x48():
     i2cdetect = _require("i2cdetect")
     result = _run([i2cdetect, "-y", "1"])
     assert result.returncode == 0, result.stderr
-    assert (
-        ADS1115_ADDRESS in result.stdout
-    ), f"ADS1115 not detected at 0x{ADS1115_ADDRESS} on I2C bus 1:\n{result.stdout}"
+    assert ADS1115_ADDRESS in result.stdout, (
+        f"ADS1115 not detected at 0x{ADS1115_ADDRESS} on I2C bus 1:\n{result.stdout}"
+    )
 
 
 def test_alsa_lists_a_playback_device():
@@ -55,9 +55,9 @@ def test_alsa_lists_a_playback_device():
     aplay = _require("aplay")
     result = _run([aplay, "-l"])
     assert result.returncode == 0, result.stderr
-    assert (
-        "card" in result.stdout.lower()
-    ), f"No ALSA playback device found:\n{result.stdout}\n{result.stderr}"
+    assert "card" in result.stdout.lower(), (
+        f"No ALSA playback device found:\n{result.stdout}\n{result.stderr}"
+    )
 
 
 def test_spi_display_device_node_present():

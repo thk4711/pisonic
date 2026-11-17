@@ -123,7 +123,7 @@ class UtilityLibrary:
         log_dir = os.environ.get("RADIO_PROCESS_LOG_DIR")
         try:
             max_bytes = int(os.environ.get("RADIO_PROCESS_LOG_MAX_BYTES", 256 * 1024))
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             max_bytes = 256 * 1024
 
         # Default (no RADIO_PROCESS_LOG_DIR, or explicitly "none"): discard all
@@ -299,14 +299,23 @@ class UtilityLibrary:
     ) -> Optional[bytes]:
         """Return a bounded successful image response, otherwise ``None``."""
         try:
-            response = requests.get(url, timeout=timeout)
-            response.raise_for_status()
-            media_type = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
-            data = response.content
-            if not media_type.startswith("image/") or not data:
-                return None
-            return data if len(data) <= max_bytes else None
-        except requests.RequestException as e:
+            with requests.get(url, timeout=timeout, stream=True) as response:
+                response.raise_for_status()
+                media_type = (
+                    response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
+                )
+                if media_type not in ("image/png", "image/jpeg") or max_bytes <= 0:
+                    return None
+                length = response.headers.get("Content-Length")
+                if length is not None and not 0 <= int(length) <= max_bytes:
+                    return None
+                data = bytearray()
+                for chunk in response.iter_content(chunk_size=8192):
+                    if len(data) + len(chunk) > max_bytes:
+                        return None
+                    data.extend(chunk)
+                return bytes(data) if data else None
+        except (requests.RequestException, ValueError) as e:
             logger.error(f"Image request failed: {e}")
             return None
 

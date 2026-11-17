@@ -52,7 +52,7 @@ def get_panel_class(name: str) -> type:
     cls = _PANELS.get(normalised)
     if cls is None:
         logger.warning(
-            "Unknown display panel %r — falling back to ST7789 (240x280). " "Supported values: %s",
+            "Unknown display panel %r — falling back to ST7789 (240x280). Supported values: %s",
             name,
             ", ".join(sorted(_PANELS)),
         )

@@ -130,7 +130,7 @@ def serialize_stations(slots: List[Dict[str, str]]) -> str:
         if not name or not url:
             continue
         logo = (slot.get("logo") or "").strip()
-        blocks.append(f"[{name}]\n" f"url = {url}\n" f"logo = {logo}\n" f"name = {name}\n")
+        blocks.append(f"[{name}]\nurl = {url}\nlogo = {logo}\nname = {name}\n")
     return "\n".join(blocks) + ("\n" if blocks else "")
 
 

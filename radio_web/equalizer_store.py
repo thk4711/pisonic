@@ -249,7 +249,7 @@ def load_equalizer() -> EqualizerSettings:
             "loudness", "amount", fallback=str(loudness_defaults["loudness_amount"])
         )
         return validate_settings(values)
-    except (configparser.Error, KeyError, ValueError):
+    except configparser.Error, KeyError, ValueError:
         return defaults()
 
 

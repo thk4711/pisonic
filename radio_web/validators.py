@@ -387,7 +387,7 @@ def validate_panel(value: str) -> str:
         return "st7789"
     if name not in PANEL_NAMES:
         raise ValueError(
-            f"Unknown display panel '{value}'. " f"Supported values: {', '.join(PANEL_NAMES)}."
+            f"Unknown display panel '{value}'. Supported values: {', '.join(PANEL_NAMES)}."
         )
     return name
 

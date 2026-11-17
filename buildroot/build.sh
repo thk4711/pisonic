@@ -22,6 +22,7 @@
 #   BUILDROOT_COMMIT  expected full commit ID         (pinned with version)
 #   REPO_DIR          this repository                (default: auto-detected)
 #   RADIO_REPO_COMMIT full source commit for staged builds (default: Git HEAD)
+#   PYTHON_AUDIT_PYTHON Python with pip-audit installed (default: python3)
 #
 # Usage:
 #   ./buildroot/build.sh                 # normal (incremental) build
@@ -46,6 +47,7 @@ BUILDROOT_COMMIT="${BUILDROOT_COMMIT:-72d9d4fa636a371ef9eb99c92a735ce9f6d829d5}"
 BUILDROOT_GIT_URL="${BUILDROOT_GIT_URL:-https://gitlab.com/buildroot.org/buildroot.git}"
 DEFCONFIG_NAME="radio_rpi3_defconfig"
 BUILD_MARKER="${BUILDROOT_DIR}/output/radio-build.started"
+PYTHON_AUDIT_PYTHON="${PYTHON_AUDIT_PYTHON:-python3}"
 
 # --- shairport-sync development source (built via Buildroot OVERRIDE_SRCDIR) --
 # We track the upstream shairport-sync *development* branch (5.6-dev line) for
@@ -144,6 +146,9 @@ checker_runs() {
 }
 
 preflight_tooling() {
+	if ! "$PYTHON_AUDIT_PYTHON" -c 'import sys, pip_audit; assert sys.version_info >= (3, 14)' >/dev/null 2>&1; then
+		die "install pip-audit==2.10.1 in a Python 3.14 build-host virtualenv and set PYTHON_AUDIT_PYTHON"
+	fi
 	checker=""
 	if [ -n "${SWUPDATE_CHECKER:-}" ]; then
 		checker="$SWUPDATE_CHECKER"
@@ -273,12 +278,18 @@ build_image() {
 	echo "build.sh: building with -j$jobs (log: $log_file) ..."
 	echo "build.sh: BR2_DL_DIR=$BR2_DL_DIR"
 	echo "build.sh: SHAIRPORT_SYNC_OVERRIDE_SRCDIR=$SHAIRPORT_SYNC_SRCDIR"
-	# Tee to a log so a long build can be inspected/copied afterwards.
-	if command -v tee >/dev/null 2>&1; then
-		make -j"$jobs" SHAIRPORT_SYNC_OVERRIDE_SRCDIR="$SHAIRPORT_SYNC_SRCDIR" 2>&1 | tee -a "$log_file"
-	else
-		make -j"$jobs" SHAIRPORT_SYNC_OVERRIDE_SRCDIR="$SHAIRPORT_SYNC_SRCDIR" >> "$log_file" 2>&1
+	# Do not pipe make into tee: POSIX sh would lose make's failure status and
+	# could audit stale target metadata after an unsuccessful compilation.
+	if ! make -j"$jobs" SHAIRPORT_SYNC_OVERRIDE_SRCDIR="$SHAIRPORT_SYNC_SRCDIR" >> "$log_file" 2>&1; then
+		tail -n 50 "$log_file" >&2
+		die "Buildroot compilation failed (see $log_file)"
 	fi
+	# Audit installed distribution metadata, never executing cross-built ARM code.
+	# A stale incremental package or known vulnerability blocks artifact reporting.
+	"$PYTHON_AUDIT_PYTHON" "${REPO_DIR}/scripts/audit_target_python.py" \
+		"${BUILDROOT_DIR}/output/target" \
+		--output "${BUILDROOT_DIR}/output/images/python-requirements.txt" \
+		|| die "target Python dependency security audit failed"
 }
 
 # --- 6. Report ---------------------------------------------------------------

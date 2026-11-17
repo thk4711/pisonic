@@ -7,6 +7,8 @@
 # are caught locally before they reach CI. Ruff formatting is applied on normal
 # commits and checked in CI. Generic whitespace fixers that CI does not gate
 # remain manual to avoid unrelated file churn.
+default_language_version:
+  python: python3.14
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
@@ -27,14 +29,14 @@ repos:
       - id: check-added-large-files
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.9
+    rev: v0.17.5
     hooks:
-      - id: ruff          # lint (matches CI's `ruff check .`)
+      - id: ruff-check    # lint (matches CI's `ruff check .`)
         args: ["--fix"]
       - id: ruff-format    # format locally; CI verifies with `ruff format --check`
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.20.2
+    rev: v2.3.1
     hooks:
       - id: mypy
         # mypy reads its repository-wide production scope and settings from
@@ -44,7 +46,14 @@ repos:
         # The hook runs in its own isolated venv, so it needs the same type
         # stubs CI's mypy sees (requirements-dev.txt) or it reports spurious
         # import-untyped errors for requests/yaml that CI never hits.
-        additional_dependencies: ["pydantic>=2.10", "types-requests", "types-PyYAML"]
+        additional_dependencies:
+          - pydantic==2.13.3
+          - pydantic-core==2.46.3
+          - annotated-types==0.7.0
+          - typing-extensions==4.15.0
+          - typing-inspection==0.4.2
+          - types-requests==2.33.0.20261030
+          - types-PyYAML==6.0.12.20261113
 
   - repo: local
     hooks:

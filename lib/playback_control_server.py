@@ -29,7 +29,7 @@ class _Handler(socketserver.StreamRequestHandler):
         self.request.settimeout(server.request_timeout)  # type: ignore[attr-defined]
         try:
             raw = self.rfile.readline(player_protocol.MAX_MESSAGE_BYTES + 1)
-        except (socket.timeout, TimeoutError):
+        except socket.timeout, TimeoutError:
             self._write(_response(False, "request_timeout", "Playback request timed out"))
             return
 
@@ -41,7 +41,7 @@ class _Handler(socketserver.StreamRequestHandler):
             return
         try:
             action = player_protocol.decode_request(raw)
-        except (ValueError, UnicodeDecodeError):
+        except ValueError, UnicodeDecodeError:
             self._write(_response(False, "invalid_request", "Malformed playback request"))
             return
         if action not in player_protocol.ACTION_IDS:

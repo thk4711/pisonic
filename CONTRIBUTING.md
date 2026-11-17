@@ -15,9 +15,9 @@ stubbed in [`tests/conftest.py`](tests/conftest.py), so the whole workflow runs
 on macOS or Linux.
 
 ```bash
-python3 -m venv .venv
+python3.14 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements-dev.txt
+pip install --require-hashes -r requirements-dev.txt
 ```
 
 ## Before you open a pull request
@@ -44,10 +44,11 @@ pre-commit install --hook-type pre-push  # + full pytest/coverage before a push
 The hooks are deliberately kept in lockstep with CI so a problem is caught on
 your machine rather than in the pipeline:
 
-- **`ruff` lint** includes **`FA102`**, which flags PEP 604 unions (`X | None`)
-  used without `from __future__ import annotations` — that syntax is evaluated
-  at import time and breaks on the **Python 3.9** appliance floor, even though
-  it runs fine on a newer local interpreter.
+- **Python 3.14** is the application and CI target, matching the appliance.
+  Older Python versions are not supported. Ruff and mypy target the same version.
+- **Dependency audits** cover both hashed Python locks. Update Buildroot recipes
+  too, and audit the actual image before publishing; see
+  [`doc/dependency-security.md`](doc/dependency-security.md).
 - **mypy** checks all first-party production Python in `radio.py`, `lib/`,
   `radio_web/`, and `scripts/`. Hardware-only imports without host type stubs
   are treated as external.
@@ -62,7 +63,7 @@ your machine rather than in the pipeline:
 
 ### Guidelines
 
-- **Match the existing style.** `ruff` targets Python 3.9 (the appliance
+- **Match the existing style.** `ruff` targets Python 3.14 (the appliance
   floor); do not introduce syntax that will not run there. Line length is 100.
 - **Keep the standard-library-only constraint** in `radio_web/` — no web
   framework, database or Node.js.

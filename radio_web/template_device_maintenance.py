@@ -88,7 +88,7 @@ def device_page(
         f"{csrf}"
         '<p><label>New root password<br><input type="password" name="root_password" '
         'autocomplete="new-password" required></label></p>'
-        '<p><label>Confirm new root password<br>'
+        "<p><label>Confirm new root password<br>"
         '<input type="password" name="root_password_confirm" '
         'autocomplete="new-password" required></label></p>'
         '<p class="btnrow"><button class="btn-apply" type="submit">'
@@ -267,47 +267,47 @@ def maintenance_page(
         "(cleared on reboot). Secrets and WiFi credentials are excluded.</p>"
         "</div>"
         '<div class="card"><h2>Backup &amp; restore</h2>'
-        '<p>Save your radio settings and connections to a backup file. You can use '
-        'this file to restore the radio after reinstalling or replacing the SD card.</p>'
+        "<p>Save your radio settings and connections to a backup file. You can use "
+        "this file to restore the radio after reinstalling or replacing the SD card.</p>"
         '<div class="btnrow maintenance-actions">'
         '<button class="btn-primary" type="button" id="backup-open">Create backup</button>'
         '<button class="btn-warning" type="button" id="restore-open">Restore backup…</button>'
-        '</div></div>'
+        "</div></div>"
         '<dialog id="backup-dialog" class="maintenance-dialog" aria-labelledby="backup-title">'
         '<div class="wizard-shell"><div class="wizard-header">'
         '<h2 id="backup-title">Create backup</h2>'
         '<button type="button" class="dialog-close btn-secondary" '
         'aria-label="Close backup window">&times;</button></div>'
-        '<p>Download a file containing your radio settings, WiFi configuration, '
-        'device identities, and Bluetooth pairings.</p>'
+        "<p>Download a file containing your radio settings, WiFi configuration, "
+        "device identities, and Bluetooth pairings.</p>"
         '<p class="warn"><strong>Keep this file private.</strong> It contains sensitive '
-        'settings that can provide access to your radio and network.</p>'
+        "settings that can provide access to your radio and network.</p>"
         '<form method="post" action="/backup/download" id="backup-form">'
-        f'{csrf_field(csrf_token)}<label>Admin password<br>'
+        f"{csrf_field(csrf_token)}<label>Admin password<br>"
         '<input id="backup-password" type="password" name="password" '
         'autocomplete="current-password" required></label>'
         '<p class="btnrow"><button class="btn-primary" type="submit">Download backup</button> '
         '<button class="btn-secondary dialog-cancel" type="button">Cancel</button></p>'
-        '</form></div></dialog>'
+        "</form></div></dialog>"
         '<dialog id="restore-dialog" class="maintenance-dialog" aria-labelledby="restore-title">'
         '<div class="wizard-shell"><div class="wizard-header">'
         '<h2 id="restore-title">Restore backup</h2>'
         '<button type="button" class="dialog-close btn-secondary" '
         'aria-label="Close restore window">&times;</button></div>'
-        '<p>Select a backup file previously downloaded from this radio interface.</p>'
+        "<p>Select a backup file previously downloaded from this radio interface.</p>"
         '<form method="post" action="/restore" enctype="multipart/form-data" id="restore-form">'
-        f'{csrf_field(csrf_token)}<label>Backup file<br>'
+        f"{csrf_field(csrf_token)}<label>Backup file<br>"
         '<input id="restore-file" type="file" name="backup_file" '
         'accept=".tar.gz,.gz,application/gzip" required></label>'
         '<p><label>Admin password<br><input id="restore-password" type="password" '
         'name="password" autocomplete="current-password" required></label></p>'
         '<p class="warn">Restoring replaces radio settings, WiFi credentials, device '
-        'identities, and Bluetooth pairings. Your connection and next login may change.</p>'
+        "identities, and Bluetooth pairings. Your connection and next login may change.</p>"
         '<label class="confirm-check"><input type="checkbox" name="confirmed" value="1" '
-        'required> I understand that the current settings will be replaced.</label>'
+        "required> I understand that the current settings will be replaced.</label>"
         '<p class="btnrow"><button class="btn-danger" type="submit">Restore backup</button> '
         '<button class="btn-secondary dialog-cancel" type="button">Cancel</button></p>'
-        '</form></div></dialog>'
+        "</form></div></dialog>"
         '<p><a href="/">Back to the dashboard</a></p>'
     )
     return _page("Maintenance", body, script="/static/app.js?v=10")

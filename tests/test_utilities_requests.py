@@ -22,6 +22,19 @@ class _Response:
         self.content = content
         self.headers = headers or {}
         self._raise = raise_exc
+        self.closed = False
+        self.chunks_read = 0
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
+        self.closed = True
+
+    def iter_content(self, chunk_size):
+        for start in range(0, len(self.content), chunk_size):
+            self.chunks_read += 1
+            yield self.content[start : start + chunk_size]
 
     def raise_for_status(self):
         if self._raise is not None:
@@ -73,8 +86,11 @@ def test_request_json_filters_non_dict(monkeypatch):
 
 def test_request_image_returns_bounded_bytes(monkeypatch):
     resp = _Response(content=b"\x89PNG", headers={"Content-Type": "image/png"})
-    monkeypatch.setattr(requests, "get", lambda *a, **k: resp)
+    get = mock.Mock(return_value=resp)
+    monkeypatch.setattr(requests, "get", get)
     assert UtilityLibrary.request_image("http://x") == b"\x89PNG"
+    get.assert_called_once_with("http://x", timeout=5, stream=True)
+    assert resp.closed
 
 
 def test_request_image_rejects_non_image(monkeypatch):
@@ -87,6 +103,35 @@ def test_request_image_rejects_oversized(monkeypatch):
     resp = _Response(content=b"x" * 100, headers={"Content-Type": "image/png"})
     monkeypatch.setattr(requests, "get", lambda *a, **k: resp)
     assert UtilityLibrary.request_image("http://x", max_bytes=10) is None
+    assert resp.closed
+
+
+@pytest.mark.parametrize("length", ["-1", "invalid", "11"])
+def test_request_image_rejects_bad_declared_length_before_reading(monkeypatch, length):
+    resp = _Response(
+        content=b"tiny", headers={"Content-Type": "image/jpeg", "Content-Length": length}
+    )
+    monkeypatch.setattr(requests, "get", lambda *a, **k: resp)
+    assert UtilityLibrary.request_image("http://x", max_bytes=10) is None
+    assert resp.chunks_read == 0
+    assert resp.closed
+
+
+def test_request_image_stops_stream_at_bound_without_buffering_rest(monkeypatch):
+    resp = _Response(content=b"x" * 40_000, headers={"Content-Type": "image/jpeg"})
+    monkeypatch.setattr(requests, "get", lambda *a, **k: resp)
+    assert UtilityLibrary.request_image("http://x", max_bytes=9000) is None
+    assert resp.chunks_read == 2
+    assert resp.closed
+
+
+@pytest.mark.parametrize("media_type", ["image/gif", "image/tiff", "image/svg+xml"])
+def test_request_image_only_accepts_png_and_jpeg(monkeypatch, media_type):
+    resp = _Response(content=b"data", headers={"Content-Type": media_type})
+    monkeypatch.setattr(requests, "get", lambda *a, **k: resp)
+    assert UtilityLibrary.request_image("http://x") is None
+    assert resp.chunks_read == 0
+    assert resp.closed
 
 
 def test_request_image_handles_error(monkeypatch):

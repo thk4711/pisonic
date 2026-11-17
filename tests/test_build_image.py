@@ -54,6 +54,74 @@ def test_config_is_optional_and_cli_overrides_it(tmp_path):
     assert args.zip_image is True
 
 
+def test_audit_python_config_and_cli_override(tmp_path):
+    config = tmp_path / "build.ini"
+    config.write_text("[build_image]\npython_audit_python = /srv/audit/bin/python\n")
+    assert (
+        build_image.parse_args(["--config", str(config)]).python_audit_python
+        == "/srv/audit/bin/python"
+    )
+    args = build_image.parse_args(
+        ["--config", str(config), "--python-audit-python", "/other/python"]
+    )
+    assert args.python_audit_python == "/other/python"
+
+
+def test_local_fast_build_repeats_audit_after_last_compilation(monkeypatch, tmp_path):
+    calls = []
+
+    def record(argv, **kwargs):
+        calls.append((list(argv), kwargs))
+        return subprocess.CompletedProcess(argv, 0)
+
+    monkeypatch.setattr(build_image, "run", record)
+    args = build_image.parse_args(
+        ["--fast", "--jobs", "2", "--python-audit-python", "/srv/audit/python"]
+    )
+    args.buildroot_dir = tmp_path / "buildroot"
+    args.version = "0.4.1"
+    build_image.local_build(args, build_image.DEFAULT_REPOSITORY)
+    assert calls[0][1]["env"]["PYTHON_AUDIT_PYTHON"] == "/srv/audit/python"
+    assert calls[-2][0][0] == "make"
+    assert calls[-1][0][0] == "/srv/audit/python"
+    assert calls[-1][0][1].endswith("/scripts/audit_target_python.py")
+    assert calls[-1][0][-1].endswith("/output/images/python-requirements.txt")
+
+
+def test_remote_fast_build_forwards_audit_python_and_reaudits(monkeypatch):
+    commands = []
+    monkeypatch.setattr(build_image, "run", lambda *a, **k: subprocess.CompletedProcess(a, 0))
+    monkeypatch.setattr(build_image, "remote", lambda host, command, **k: commands.append(command))
+    args = build_image.parse_args(
+        [
+            "--execution",
+            "remote",
+            "--host",
+            "builder@example.test",
+            "--remote-root",
+            "/srv/radio",
+            "--buildroot-dir",
+            "/srv/buildroot",
+            "--download-cache",
+            "/srv/dl",
+            "--fast",
+            "--jobs",
+            "2",
+            "--python-audit-python",
+            "/srv/audit/python",
+        ]
+    )
+    args.version = "0.4.1"
+    args.stamp = "test"
+    build_image.remote_build(args, build_image.DEFAULT_REPOSITORY)
+    assert any("PYTHON_AUDIT_PYTHON=/srv/audit/python" in command for command in commands)
+    fast = next(command for command in commands if "radio-app-dirclean" in command)
+    assert "SHAIRPORT_SYNC_OVERRIDE_SRCDIR=" in fast
+    assert "&& /srv/audit/python" in fast
+    assert "audit_target_python.py" in fast
+    assert fast.index("make -j2") < fast.index("audit_target_python.py")
+
+
 def test_bad_config_is_rejected(tmp_path):
     config = tmp_path / "build.ini"
     config.write_text("[build_image]\npersonal_default = value\n", encoding="utf-8")

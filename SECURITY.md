@@ -8,6 +8,13 @@ latest `main` for the newest fixes.
 
 ## Reporting a vulnerability
 
+Dependency maintenance targets the appliance's Python 3.14 interpreter.
+Python locks are hash-pinned and audited in scheduled CI; firmware builds also
+audit installed target distribution metadata. Native image components require
+separate Buildroot/CVE release review. These checks find known vulnerabilities,
+not proof of vulnerability-free software. See
+[`doc/dependency-security.md`](doc/dependency-security.md).
+
 **Please do not open a public GitHub issue for security problems.**
 
 Instead, report privately using GitHub's

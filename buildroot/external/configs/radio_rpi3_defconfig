@@ -31,6 +31,8 @@ BR2_TOOLCHAIN_EXTERNAL_BOOTLIN_ARMV7_EABIHF_GLIBC_BLEEDING_EDGE=y
 # Keep Buildroot's Raspberry Pi patches and add appliance-specific kernel
 # patches (currently the host-visible UAC1 interface-name correction).
 BR2_GLOBAL_PATCH_DIR="board/raspberrypi/patches $(BR2_EXTERNAL_RADIO_PATH)/board/radio/patches"
+# Security backports are applied before package versions/paths are finalized.
+BR2_PACKAGE_OVERRIDE_FILE="$(BR2_EXTERNAL_RADIO_PATH)/board/radio/python-security.mk"
 # --- Download integrity ------------------------------------------------------
 # go-librespot has a repository-owned hash for the `-go2` archive produced after
 # Buildroot runs `go mod vendor`; Buildroot enforces that entry whether or not

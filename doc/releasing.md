@@ -67,6 +67,14 @@ What stays manual (human gates):
 
 ## Prerequisites
 
+- **Dependency security review.** Use the Python 3.14 build-host audit environment
+  described in [dependency-security.md](dependency-security.md). Configure
+  `python_audit_python` in the build-image INI for remote builds. Full and fast
+  builds audit the installed target Python inventory; native/CVE and real-Pi
+  checks remain human release gates. `--skip-build` reuses old artifacts and does
+  not repeat the build-time security audit, so retain and re-review their
+  inventory before publication.
+
 - **A prepared release commit.** Before running the script, complete checklist
   steps 1–4 in [`CHANGELOG.md`](../CHANGELOG.md): bump the version in both
   places, move the `Unreleased` notes under a dated `## [X.Y.Z] - DATE` heading,

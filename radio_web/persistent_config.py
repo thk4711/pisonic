@@ -70,7 +70,7 @@ def _atomic_write(path: Path, data: str, mode: int, uid: Optional[int] = None) -
 def _schema_version() -> int:
     try:
         value = int(SCHEMA_FILE.read_text(encoding="utf-8").strip())
-    except (OSError, ValueError):
+    except OSError, ValueError:
         return 0
     if value < 0:
         raise ValueError(f"unsupported persistent schema version {value}")
@@ -183,7 +183,7 @@ MIGRATIONS: Dict[int, Callable[[], None]] = {1: _migration_to_1}
 def _backup_metadata(path: Path) -> Optional[Dict[str, Any]]:
     try:
         value = json.loads((path / "backup.json").read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError, TypeError):
+    except OSError, UnicodeError, json.JSONDecodeError, TypeError:
         return None
     return value if isinstance(value, dict) and value.get("schema") == 1 else None
 

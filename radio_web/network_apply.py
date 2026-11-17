@@ -216,7 +216,7 @@ def _has_ip() -> bool:
             timeout=5.0,
             check=False,
         ).stdout
-    except (OSError, subprocess.SubprocessError):
+    except OSError, subprocess.SubprocessError:
         return False
     return "inet " in out
 

@@ -34,6 +34,7 @@ CONFIG_KEYS = {
     "remote_root",
     "buildroot_dir",
     "download_cache",
+    "python_audit_python",
     "artifacts_dir",
     "jobs",
     "zip_image",
@@ -262,6 +263,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--remote-root", default=values.get("remote_root", ""))
     parser.add_argument(
+        "--python-audit-python",
+        default=values.get("python_audit_python", os.environ.get("PYTHON_AUDIT_PYTHON", "python3")),
+        help="build-host Python 3.14 with pip-audit (a remote-host path in remote mode)",
+    )
+    parser.add_argument(
         "--buildroot-dir",
         type=Path,
         default=Path(values.get("buildroot_dir", "~/embedded/buildroot")),
@@ -375,6 +381,7 @@ def local_build(args: argparse.Namespace, repository: Path) -> tuple[Path, Path]
     environment = os.environ.copy()
     environment["BUILDROOT_DIR"] = str(args.buildroot_dir)
     environment["BR2_DL_DIR"] = str(args.download_cache)
+    environment["PYTHON_AUDIT_PYTHON"] = args.python_audit_python
     run(
         [str(repository / "buildroot" / "build.sh"), *build_flags(args)],
         cwd=repository,
@@ -396,6 +403,17 @@ def local_build(args: argparse.Namespace, repository: Path) -> tuple[Path, Path]
             ],
             cwd=args.buildroot_dir,
             env=fast_env,
+        )
+        run(
+            [
+                args.python_audit_python,
+                str(repository / "scripts/audit_target_python.py"),
+                str(args.buildroot_dir / "output/target"),
+                "--output",
+                str(args.buildroot_dir / "output/images/python-requirements.txt"),
+            ],
+            cwd=repository,
+            env=environment,
         )
     images = args.buildroot_dir / "output" / "images"
     return images / "sdcard.img", images / f"pisonic-{args.version}.swu"
@@ -441,6 +459,7 @@ def remote_build(args: argparse.Namespace, repository: Path) -> tuple[str, str]:
         f"BUILDROOT_DIR={shlex.quote(str(args.buildroot_dir))} "
         f"BR2_DL_DIR={shlex.quote(str(args.download_cache))} "
         f"RADIO_REPO_COMMIT={shlex.quote(repository_commit)} "
+        f"PYTHON_AUDIT_PYTHON={shlex.quote(args.python_audit_python)} "
         f"./buildroot/build.sh {flags}"
     )
     remote(args.host, build, port=args.ssh_port)
@@ -449,7 +468,12 @@ def remote_build(args: argparse.Namespace, repository: Path) -> tuple[str, str]:
         fast = (
             f"cd {shlex.quote(str(args.buildroot_dir))} && "
             "make radio-app-dirclean radio-equalizer-dirclean && "
-            f"SWUPDATE_CHECKER={shlex.quote(checker)} make -j{args.jobs}"
+            f"SWUPDATE_CHECKER={shlex.quote(checker)} make -j{args.jobs} "
+            f"SHAIRPORT_SYNC_OVERRIDE_SRCDIR={shlex.quote(shairport_sync_srcdir(args.download_cache))} && "
+            f"{shlex.quote(args.python_audit_python)} "
+            f"{shlex.quote(remote_repository + '/scripts/audit_target_python.py')} "
+            f"{shlex.quote(str(args.buildroot_dir) + '/output/target')} "
+            f"--output {shlex.quote(str(args.buildroot_dir) + '/output/images/python-requirements.txt')}"
         )
         remote(args.host, fast, port=args.ssh_port)
     images = f"{str(args.buildroot_dir).rstrip('/')}/output/images"

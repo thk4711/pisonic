@@ -2,6 +2,8 @@
 
 import logging
 import math
+import os
+import warnings
 from datetime import datetime
 from typing import Any, Optional, Tuple
 
@@ -12,6 +14,9 @@ from PIL import Image, ImageDraw, ImageFilter, ImageOps
 logger = logging.getLogger(__name__)
 Font = Any
 Color = Tuple[int, int, int]
+MAX_COVER_BYTES = 5 * 1024 * 1024
+MAX_COVER_PIXELS = 16 * 1024 * 1024
+MAX_COVER_DIMENSION = 4096
 
 
 class DisplayRenderingMixin:
@@ -68,8 +73,21 @@ class DisplayRenderingMixin:
         image: Optional[Image.Image] = None
         if cover_path:
             try:
-                with Image.open(cover_path) as img:
-                    image = img.convert("RGBA")
+                with open(cover_path, "rb") as cover:
+                    if os.fstat(cover.fileno()).st_size > MAX_COVER_BYTES:
+                        raise ValueError("Cover image file is too large")
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("error", Image.DecompressionBombWarning)
+                        with Image.open(cover, formats=("PNG", "JPEG")) as img:
+                            if (
+                                img.width <= 0
+                                or img.height <= 0
+                                or img.width > MAX_COVER_DIMENSION
+                                or img.height > MAX_COVER_DIMENSION
+                                or img.width * img.height > MAX_COVER_PIXELS
+                            ):
+                                raise ValueError("Cover image dimensions are too large")
+                            image = img.convert("RGBA")
             except Exception as e:
                 logger.error(f"Unable to load cover '{cover_path}': {e}")
                 image = None

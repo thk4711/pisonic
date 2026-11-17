@@ -44,12 +44,11 @@ def _loudness_level_select(current: Any) -> str:
     maximum = int(equalizer_store.LOUDNESS_MAX_AMOUNT)
     try:
         selected_value = int(round(float(current)))
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         selected_value = minimum
     selected_value = max(minimum, min(maximum, selected_value))
     options = "".join(
-        f'<option value="{value}"{" selected" if value == selected_value else ""}>'
-        f"{value}</option>"
+        f'<option value="{value}"{" selected" if value == selected_value else ""}>{value}</option>'
         for value in range(minimum, maximum + 1)
     )
     return (
@@ -117,9 +116,9 @@ def settings_page(
         '<div class="card"><h2>Bluetooth cover art</h2>'
         f"<p>{_checkbox('online_artwork_enabled', online_artwork_on, 'Fetch missing Bluetooth cover art from MusicBrainz / Cover Art Archive')}</p>"
         '<p class="note">When enabled, the artist, title, and possibly album are sent '
-        'to MusicBrainz. Artwork is downloaded from Cover Art Archive or Internet '
-        'Archive. No account or API key is required. Disabling this option prevents '
-        'those requests, and the Bluetooth glyph remains the fallback.</p>'
+        "to MusicBrainz. Artwork is downloaded from Cover Art Archive or Internet "
+        "Archive. No account or API key is required. Disabling this option prevents "
+        "those requests, and the Bluetooth glyph remains the fallback.</p>"
         "</div>"
         '<p class="btnrow">'
         '<button class="btn-primary" type="submit" form="display-settings" name="op" '
@@ -191,8 +190,7 @@ def audio_hardware_page(
     band_rows = []
     for index, band in enumerate(equalizer["bands"], 1):
         choices = "".join(
-            f'<option value="{name}"{" selected" if band["type"] == name else ""}>'
-            f"{label}</option>"
+            f'<option value="{name}"{" selected" if band["type"] == name else ""}>{label}</option>'
             for name, label in filter_labels.items()
         )
         band_rows.append(
@@ -200,7 +198,7 @@ def audio_hardware_page(
             f'<span class="eq-dot eq-color-{index}" aria-hidden="true"></span>'
             f'<label class="eq-on"><span class="sr-only">Band {index} enabled</span>'
             f'<input type="checkbox" name="eq_band_{index}_enabled" value="true"'
-            f'{" checked" if band["enabled"] else ""}></label>'
+            f"{' checked' if band['enabled'] else ''}></label>"
             f'<label><span class="sr-only">Band {index} type</span><select name="eq_band_{index}_type">'
             f"{choices}</select></label>"
             f'<label><span class="sr-only">Band {index} gain</span><input type="number" '
@@ -224,30 +222,30 @@ def audio_hardware_page(
         '<div class="eq-flash" id="eq-flash" role="status" aria-live="polite"></div>'
         '<div class="eq-toolbar"><label class="switch-label"><input type="checkbox" '
         'name="eq_enabled" value="true"'
-        f'{" checked" if equalizer["enabled"] else ""}> Enable equalizer</label></div>'
+        f"{' checked' if equalizer['enabled'] else ''}> Enable equalizer</label></div>"
         '<div class="eq-loudness-row">'
         '<label class="eq-loudness-level">Loudness level '
-        f'{_loudness_level_select(equalizer["loudness_amount"])}'
-        '</label>'
+        f"{_loudness_level_select(equalizer['loudness_amount'])}"
+        "</label>"
         '<span class="note eq-loudness-hint">Boosts bass and a little treble at low '
-        'listening volumes and fades out as you turn up (Fletcher-Munson loudness '
-        'compensation). It follows the volume knob live and needs the equalizer enabled. '
-        'Set the level to 0 to turn loudness off.</span>'
-        '</div>'
+        "listening volumes and fades out as you turn up (Fletcher-Munson loudness "
+        "compensation). It follows the volume knob live and needs the equalizer enabled. "
+        "Set the level to 0 to turn loudness off.</span>"
+        "</div>"
         '<p class="eq-preamp" '
         'title="Set automatically to prevent clipping from your enabled bands and '
-        'loudness level. It equals minus the largest boost in the chain, clamped to '
+        "loudness level. It equals minus the largest boost in the chain, clamped to "
         'the -24..0 dB range.">'
         '<span class="eq-preamp-label">Preamp gain</span> '
         f'<span class="eq-preamp-value" data-eq-preamp>{_esc(equalizer["preamp_db"])}</span>'
-        ' dB</p>'
+        " dB</p>"
         '<p class="note eq-preamp-hint">Preamp gain is set automatically to reserve '
         "headroom so your enabled bands and loudness level never clip. It equals about "
         "minus the largest boost in the chain (0 dB when nothing is boosted).</p>"
         '<svg class="eq-graph" id="eq-graph" viewBox="0 0 900 320" role="img" '
         'aria-label="Equalizer frequency response from 20 hertz to 20 kilohertz"></svg>'
         '<div class="eq-band-head" aria-hidden="true"><span></span><span>On</span><span>Curve</span>'
-        '<span>Gain</span><span>Q</span><span>Frequency</span></div>'
+        "<span>Gain</span><span>Q</span><span>Frequency</span></div>"
         f'<div class="eq-bands">{"".join(band_rows)}</div>'
         '<div class="btnrow"><button class="btn-apply" type="submit" '
         'name="op" value="apply_equalizer">Save and Apply</button><button class="btn-danger" '
@@ -264,7 +262,7 @@ def audio_hardware_page(
         '<form method="post" action="/audio-hardware" id="audio-hardware-form">'
         f"{csrf}"
         '<div class="card" id="audio-output-settings"><h2>Available sound cards</h2>'
-        '<p><label>Sound card<br>'
+        "<p><label>Sound card<br>"
         f'<select name="profile" id="profile-select">{"".join(options)}</select>'
         "</label></p>"
         f'<p class="note" id="profile-note">{_esc(current_note)}</p>'

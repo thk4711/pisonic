@@ -118,7 +118,7 @@ def _current_ssid() -> Optional[str]:
         out = subprocess.run(  # noqa: S603 - fixed argv, shell=False
             _IW_LINK_CMD, capture_output=True, text=True, timeout=_COMMAND_TIMEOUT
         ).stdout
-    except (OSError, subprocess.SubprocessError):
+    except OSError, subprocess.SubprocessError:
         return None
     match = re.search(r"^\s*SSID:\s*(.+)$", out, re.MULTILINE)
     return match.group(1).strip() if match else None

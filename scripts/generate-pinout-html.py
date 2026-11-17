@@ -60,7 +60,7 @@ def _replace_annotation(match: re.Match) -> str:
     if tag not in COLORS:
         return match.group(0)
     bg, fg = COLORS[tag]
-    style = f"background:{bg};color:{fg};" "padding:1px 4px;border-radius:3px;font-size:0.95em;"
+    style = f"background:{bg};color:{fg};padding:1px 4px;border-radius:3px;font-size:0.95em;"
     return f'<span style="{style}">{text}</span>'
 
 

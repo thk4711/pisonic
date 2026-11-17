@@ -79,7 +79,7 @@ def test_partition_boundaries_are_ordered_non_overlapping_and_match_layout():
     ]
     assert boundaries == sorted(boundaries)
     assert all(end > start for start, end in boundaries)
-    assert all(left[1] <= right[0] for left, right in zip(boundaries, boundaries[1:]))
+    assert all(left[1] <= right[0] for left, right in zip(boundaries, boundaries[1:], strict=False))
     assert values["ROOTFS_A_LABEL"] != values["ROOTFS_B_LABEL"]
     text = GENIMAGE.read_text(encoding="utf-8")
     assert f"offset = {reserved // (1024 * 1024)}M" in text

@@ -966,9 +966,9 @@ def test_round_osd_caps_stay_within_arc_and_antialias(monkeypatch):
     # the arc's own outer radius rr is expected and fine).
     cap_r = thickness // 2
     old_buggy_radius = rr + cap_r
-    assert (
-        max_r < old_buggy_radius - 2
-    ), f"caps extend to {max_r:.1f}, near old buggy bound {old_buggy_radius}"
+    assert max_r < old_buggy_radius - 2, (
+        f"caps extend to {max_r:.1f}, near old buggy bound {old_buggy_radius}"
+    )
     assert max_r <= rr + 4.0, f"lit pixels reach {max_r:.1f} > rr={rr}+4"
     # Supersampling produced smooth (partially lit) edge pixels.
     assert partial_pixels > 0

@@ -43,7 +43,7 @@ def _build_sysfs(
     part_device.write_bytes(b"")
     mountinfo = tmp_path / "mountinfo"
     mountinfo.write_text(
-        "36 35 0:32 / /data rw,relatime shared:1 - ext4 " f"{part_device} rw,data=ordered\n"
+        f"36 35 0:32 / /data rw,relatime shared:1 - ext4 {part_device} rw,data=ordered\n"
     )
     return str(mountinfo), str(sys_block)
 

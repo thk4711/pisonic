@@ -79,6 +79,37 @@ def test_upload_rejects_excessive_dimensions(managed):
         logo_store.save_upload(_image_bytes((2001, 2000)))
 
 
+@pytest.mark.parametrize("fmt", ["GIF", "TIFF", "BMP"])
+def test_upload_rejects_other_formats_even_with_png_filename(managed, fmt):
+    with pytest.raises(ValueError, match="PNG or JPEG"):
+        logo_store.save_upload(_image_bytes((8, 8), fmt), "logo.png")
+
+
+def test_upload_limits_decoders_before_opening(managed, monkeypatch):
+    payload = _image_bytes((8, 8))
+    real_open = Image.open
+    calls = []
+
+    def bounded_open(fp, **kwargs):
+        calls.append(kwargs["formats"])
+        return real_open(fp, **kwargs)
+
+    monkeypatch.setattr(Image, "open", bounded_open)
+    logo_store.save_upload(payload)
+    assert calls == [("PNG", "JPEG")]
+
+
+@pytest.mark.parametrize("size", [(4, 4), (8, 8)])
+def test_logo_bomb_warning_and_error_are_controlled(managed, monkeypatch, size):
+    payload = _image_bytes(size)
+    path = managed / "logo.png"
+    path.write_bytes(payload)
+    monkeypatch.setattr(Image, "MAX_IMAGE_PIXELS", 10)
+    with pytest.raises(ValueError, match="valid PNG or JPEG"):
+        logo_store.save_upload(payload)
+    assert not logo_store._valid_image(str(path))
+
+
 def test_available_logos_and_managed_precedence(managed):
     builtin = managed / "builtins"
     builtin.mkdir()

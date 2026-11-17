@@ -112,7 +112,7 @@ def write_status(state: str, **values: Any) -> None:
 def _append_history(metadata: Dict[str, Any], result: str) -> None:
     try:
         value = json.loads(HISTORY_PATH.read_text(encoding="utf-8"))
-    except (OSError, ValueError, TypeError):
+    except OSError, ValueError, TypeError:
         value = []
     if not isinstance(value, list):
         value = []
@@ -133,7 +133,7 @@ def _read_bounded_json(path: Path, maximum: int) -> Any:
         if path.stat().st_size > maximum:
             return None
         return json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError, TypeError):
+    except OSError, ValueError, TypeError:
         return None
 
 
@@ -141,7 +141,7 @@ def installation_active() -> bool:
     """Return whether the runtime lock belongs to a live installation worker."""
     try:
         pid = int(LOCK_PATH.read_text(encoding="ascii").strip())
-    except (OSError, ValueError):
+    except OSError, ValueError:
         return False
     return _pid_is_running(pid)
 
@@ -327,7 +327,7 @@ def _acquire_lock() -> None:
         except FileExistsError:
             try:
                 pid = int(LOCK_PATH.read_text(encoding="ascii").strip())
-            except (OSError, ValueError):
+            except OSError, ValueError:
                 pid = -1
             if _pid_is_running(pid):
                 raise FirmwareError("Another firmware update is already active.") from None
@@ -401,7 +401,7 @@ def cancel_staged_firmware() -> Tuple[bool, str]:
     if LOCK_PATH.exists():
         try:
             pid = int(LOCK_PATH.read_text(encoding="ascii").strip())
-        except (OSError, ValueError):
+        except OSError, ValueError:
             pid = -1
         if _pid_is_running(pid):
             return False, "A firmware installation is active and cannot be cancelled."
@@ -591,7 +591,7 @@ def recover_interrupted_install() -> None:
         return
     try:
         pid = int(LOCK_PATH.read_text(encoding="ascii").strip())
-    except (OSError, ValueError):
+    except OSError, ValueError:
         pid = -1
     if _pid_is_running(pid):
         return

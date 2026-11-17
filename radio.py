@@ -247,7 +247,7 @@ class RadioController:
         # Absent -> 100 (uncapped), matching today.
         try:
             max_volume = int(str(self.config.get("volume", {}).get("max", 100)))
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             max_volume = 100
         max_volume = max(0, min(100, max_volume))
         self.adc_controller = ADCController(

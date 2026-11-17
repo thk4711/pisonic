@@ -62,7 +62,7 @@ def _load() -> Dict[str, Any]:
         if SUMMARY_PATH.stat().st_size > MAX_SUMMARY_BYTES:
             return _empty_summary()
         value = json.loads(SUMMARY_PATH.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
+    except OSError, ValueError:
         return _empty_summary()
     if not isinstance(value, dict) or value.get("schema") != SCHEMA_VERSION:
         return _empty_summary()
@@ -197,7 +197,7 @@ def best_effort_health(result: str, slot: str) -> None:
     """Record health without ever affecting acceptance or rollback behavior."""
     try:
         record_health(result, slot)
-    except (OSError, ValueError):
+    except OSError, ValueError:
         pass
 
 

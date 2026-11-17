@@ -127,11 +127,11 @@ class MPDService(MusicSource):
                 if station_index < 0:
                     raise IndexError
                 station = self.stations[station_index]
-            except (IndexError, TypeError):
+            except IndexError, TypeError:
                 logger.error("Invalid station index: %s", index)
                 return False
 
-            for command in ("clear", f'add {station["url"]}', "play"):
+            for command in ("clear", f"add {station['url']}", "play"):
                 if self._run_mpc_command(command) is None:
                     return False
             self.current_station = station_index

@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- Upgrade Pillow to 13.0.0 and Requests to 2.34.2; backport their verified
+  Buildroot recipes plus urllib3 2.8.0, certifi 2026.10.23 and idna 3.20 without modifying
+  the pinned stock checkout. Include Pillow's upstream cross-compilation fix.
+- Replace the yanked NumPy 2.4.0 image version with its non-yanked 2.4.6
+  maintenance release, sharing the target version in host-test constraints.
+- Restrict external image decoders to PNG/JPEG, bound cover dimensions and
+  streaming downloads, and reject decompression-bomb warnings/errors.
+- Standardize application development/CI on the appliance's Python 3.14;
+  drop obsolete interpreter compatibility, lock host dependencies with hashes,
+  run scheduled security audits, and gate firmware builds on the installed
+  Python distribution inventory. Native/CVE and hardware release review remain required.
+- Re-audit the target after local/remote fast builds; forward an explicitly
+  configured remote audit interpreter and preserve compilation failure status
+  so stale target packages cannot pass the firmware security gate.
+
 ## [0.4.1] - 2026-09-25
 
 ### Added

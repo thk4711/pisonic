@@ -102,7 +102,7 @@ def find_boot_dev() -> Optional[str]:
         device = out.strip().splitlines()[0].strip() if out.strip() else ""
         if device and os.path.exists(device):
             return device
-    except (OSError, subprocess.SubprocessError):
+    except OSError, subprocess.SubprocessError:
         pass
     return None
 

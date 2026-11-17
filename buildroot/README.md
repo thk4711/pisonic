@@ -79,6 +79,15 @@ commit in the build log and firmware release metadata. When building through
 (`output/images/pisonic-<version>.swu`), including each size and SHA-256.
 It also prints the exact `dd` command for flashing the installation image.
 
+The Python application targets the bundled **Python 3.14**. Repository-owned
+early package overrides and versioned source/license hashes backport Python
+security updates without modifying the stock checkout. First adoption requires
+a clean output rebuild. Install `pip-audit==2.10.1` in a Python 3.14 build-host virtualenv
+and set `PYTHON_AUDIT_PYTHON` to its Python; the build audits the installed target
+inventory before reporting artifacts. See
+[`../doc/dependency-security.md`](../doc/dependency-security.md) for the backports,
+audit setup and required native/CVE release review.
+
 Override the build locations with environment variables if the defaults do not
 suit your host:
 

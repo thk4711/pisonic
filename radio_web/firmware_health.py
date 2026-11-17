@@ -155,7 +155,7 @@ def _schema_current() -> bool:
         return writer_schema >= persistent_config.CURRENT_SCHEMA and (
             persistent_config.can_read_persistent_state(persistent_config.CURRENT_SCHEMA)
         )
-    except (OSError, ValueError):
+    except OSError, ValueError:
         return False
 
 
@@ -184,7 +184,7 @@ def _pid_running(path: Path) -> bool:
         pid = int(path.read_text(encoding="ascii").strip())
         os.kill(pid, 0)
         return pid > 1
-    except (OSError, ValueError):
+    except OSError, ValueError:
         return False
 
 

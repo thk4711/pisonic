@@ -192,7 +192,7 @@ def _clamp_triple(value: Sequence[Any], default: Color) -> Color:
         if len(value) != 3:
             return default
         return tuple(max(0, min(255, int(c))) for c in value)  # type: ignore[return-value]
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return default
 
 
@@ -202,7 +202,7 @@ def parse_float(value: Any, default: float, lo: float, hi: float) -> float:
         return default
     try:
         f = float(value)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         logger.warning("theme: invalid number %r; using default %s", value, default)
         return default
     return max(lo, min(hi, f))
@@ -214,7 +214,7 @@ def parse_int(value: Any, default: int, lo: int = 0, hi: int = 100000) -> int:
         return default
     try:
         i = int(value)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         logger.warning("theme: invalid integer %r; using default %s", value, default)
         return default
     return max(lo, min(hi, i))

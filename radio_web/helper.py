@@ -420,9 +420,9 @@ _OPERATIONS: Dict[str, Callable[[Dict[str, Any]], OperationResult]] = {
     "cancel_data_restore": _cancel_data_restore,
 }
 
-assert set(_OPERATIONS) == set(
-    helper_protocol.ACTION_IDS
-), "helper operations must match the protocol whitelist exactly"
+assert set(_OPERATIONS) == set(helper_protocol.ACTION_IDS), (
+    "helper operations must match the protocol whitelist exactly"
+)
 
 
 def dispatch(action: str, args: Dict[str, Any]) -> OperationResult:
@@ -448,7 +448,7 @@ class _Handler(socketserver.StreamRequestHandler):
             return
         try:
             action, args = helper_protocol.decode_request(raw)
-        except (ValueError, UnicodeDecodeError):
+        except ValueError, UnicodeDecodeError:
             self.wfile.write(helper_protocol.encode_response(False, "Malformed request."))
             return
         result = dispatch(action, args)

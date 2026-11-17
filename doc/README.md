@@ -7,6 +7,7 @@ Project documentation index.
 | [../CHANGELOG.md](../CHANGELOG.md) | Release notes / version history (Keep a Changelog); includes the release checklist. |
 | [releasing.md](releasing.md) | **Release automation.** Cutting a release with `scripts/release.py`: options, per-step behavior, artifact naming, draft→publish flow, and troubleshooting. |
 | [development.md](development.md) | **Developer guide.** Virtualenv setup, the pytest suite and coverage, `ruff`, `mypy`, and CI. |
+| [dependency-security.md](dependency-security.md) | Python 3.14 policy, hashed dependency locks, Buildroot security backports, target inventory audits and native/CVE release review. |
 | [build-from-scratch.md](build-from-scratch.md) | Beginner walkthrough from a fresh download to a flashed A/B SD card and its matching update package. |
 | [buildroot.md](buildroot.md) | **Buildroot image reference.** Build, flash, service layout, logging, source pins, and design decisions. |
 | [persistent-data.md](persistent-data.md) | **Persistent-data reference.** The full `/data` inventory, image seeding, `p4` mounting, compatibility links, and update isolation. |

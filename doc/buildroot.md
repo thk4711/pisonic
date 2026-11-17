@@ -73,6 +73,15 @@ and the two actual commits are embedded in `/etc/radio-release.json`.
 (`output/images/pisonic-<version>.swu`), with each size and SHA-256. It
 also prints the exact `dd` command for Linux and macOS.
 
+The application targets the bundled Python 3.14 interpreter. Early,
+repository-owned package overrides backport verified Python security updates
+without dirtying the stock checkout. Before building, install `pip-audit==2.10.1`
+in a Python 3.14 build-host virtualenv and set `PYTHON_AUDIT_PYTHON` to its Python. The build
+audits the installed target distribution inventory before reporting artifacts;
+first adoption requires a clean output rebuild. See
+[dependency-security.md](dependency-security.md) for setup, backports and the
+separate native/CVE release-review requirements.
+
 The repository-contained `scripts/build_image.py` orchestrator can additionally
 copy both artifacts to timestamped, checksum-verified output names. It executes
 locally by default and therefore does not require SSH. Copy

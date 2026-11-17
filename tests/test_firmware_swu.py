@@ -147,7 +147,7 @@ def test_checker_receives_hardware_revision_override(tmp_path, monkeypatch):
     swu.build_archive(rootfs, TEMPLATE, VERSION_FILE, tmp_path, 1024, tmp_path / "swupdate")
     check_calls = [[str(part) for part in cmd] for cmd in calls if "-c" in cmd]
     assert len(check_calls) == 2
-    for selection, cmd in zip(("stable,slot-a", "stable,slot-b"), check_calls):
+    for selection, cmd in zip(("stable,slot-a", "stable,slot-b"), check_calls, strict=True):
         assert cmd[1:5] == ["-c", "-H", f"radio:{swu.HARDWARE_REVISION}", "-i"]
         assert cmd[-2:] == ["-e", selection]
 

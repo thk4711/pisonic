@@ -98,7 +98,7 @@ def validate_settings(submitted: Mapping[str, object]) -> Dict[str, str]:
 
 def serialize_artwork(settings: Mapping[str, str]) -> str:
     """Render canonical ``artwork.ini`` contents."""
-    return f"[{ARTWORK_SECTION}]\n" f"enabled = {settings['enabled']}\n" f"provider = {PROVIDER}\n"
+    return f"[{ARTWORK_SECTION}]\nenabled = {settings['enabled']}\nprovider = {PROVIDER}\n"
 
 
 def save_artwork(submitted: Mapping[str, object]) -> None:

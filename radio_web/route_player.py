@@ -167,7 +167,7 @@ def _control(req: Request, action: str) -> Response:
         return api_error(415, "unsupported_media_type", "Use application/json.")
     try:
         payload = json.loads(req.body.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError):
+    except UnicodeDecodeError, json.JSONDecodeError:
         return api_error(400, "invalid_json", "The request body must be valid JSON.")
     if payload != {}:
         return api_error(400, "invalid_request", "Playback commands do not accept arguments.")

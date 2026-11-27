@@ -20,18 +20,18 @@
 # Data models for the MusicSource metadata (music_source.py)
 pydantic==2.13.3
 # Match the corresponding Buildroot metadata/model dependencies in host tests.
-pydantic-core==2.46.3
-annotated-types==0.7.0
-typing-extensions==4.15.0
-typing-inspection==0.4.2
+pydantic-core==2.50.5
+annotated-types==0.8.0
+typing-extensions==4.16.0
+typing-inspection==0.4.5
 
 # HTTP requests for Spotify status/cover art and generic fetches (utilities.py)
 requests==2.34.2
 # Security-sensitive Requests dependencies; also pinned in Buildroot overrides.
 urllib3==2.8.0
-certifi==2026.10.23
+certifi==2026.11.20
 idna==3.20
-charset-normalizer==3.4.5
+charset-normalizer==3.5.3
 
 # YAML config generation for the go-librespot Spotify client (spotify_service.py)
 PyYAML==6.0.3
@@ -46,7 +46,7 @@ numpy==2.4.6
 spidev==3.8
 
 # GPIO abstraction used by the display config (lcdconfig.py)
-gpiozero==2.0.1
+gpiozero==2.0.1.post3
 
 # smbus2 is used by the (optional) button_handler.py I2C path AND by the
 # first-party ADS1115 ADC driver (lib/ads1115.py).
